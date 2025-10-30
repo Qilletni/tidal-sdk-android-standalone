@@ -2,6 +2,12 @@
 
 This is the repository for TIDAL Android SDK modules.
 
+## Standalone Fork
+
+This repository is a fork with the `tidalapi` and `common` modules modified to build without Android, allowing the usage in any platform. Currently, basic OAuth2 was implemented, and replaces the normal credential handling.
+
+These changes are to support the Domain Specific Language, [Qilletni](https://qilletni.dev/), in a [service provider](https://qilletni.dev/language/service_providers/) to enable Tidal support.
+
 ## Available modules
 
 - [auth](./auth/README.md)

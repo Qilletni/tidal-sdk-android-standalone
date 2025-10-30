@@ -1,11 +1,31 @@
 plugins {
-    alias(libs.plugins.tidal.android.library)
-    alias(libs.plugins.android.junit5)
+    kotlin("jvm")
+    id("maven-publish")
 }
 
-android { namespace = "com.tidal.sdk.common" }
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    withSourcesJar()
+    withJavadocJar()
+}
+
+kotlin {
+    jvmToolchain(21)
+}
 
 dependencies {
     api(libs.kotlin.logging)
     api(libs.slf4j.api)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "common-standalone"
+            groupId = "com.tidal.sdk"
+            from(components["java"])
+        }
+    }
 }

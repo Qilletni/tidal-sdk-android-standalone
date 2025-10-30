@@ -1,15 +1,25 @@
 plugins {
-    alias(libs.plugins.tidal.android.library)
-    alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.android.junit5)
+    kotlin("jvm")
+//    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.plugin.serialization)
+    id("maven-publish")
 }
 
-android { namespace = "com.tidal.sdk.tidalapi" }
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    withSourcesJar()
+    withJavadocJar()
+}
+
+kotlin {
+    jvmToolchain(21)
+}
 
 dependencies {
-    api(libs.tidal.sdk.common)
-    api(libs.tidal.sdk.auth)
+    api(project(":common"))
+//    api(libs.tidal.sdk.auth)
 
     api(libs.kotlinx.serialization.json)
     api(libs.retrofit)
@@ -19,10 +29,20 @@ dependencies {
     implementation(libs.converter.kotlinx.serialization)
     implementation(libs.converter.scalars)
 
-    testApi(libs.test.androidx.junit)
-    testApi(libs.test.junit5Api)
-    testApi(libs.test.junit5Engine)
+    // Apache Oltu OAuth2 dependencies for OAuth2TokenManager
+    implementation("org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.2")
+    implementation("org.apache.oltu.oauth2:org.apache.oltu.oauth2.common:1.0.2")
 
-    androidTestImplementation(libs.test.androidx.junit)
-    androidTestImplementation(libs.test.androidx.espresso.core)
+    testImplementation(libs.test.junit5Api)
+    testRuntimeOnly(libs.test.junit5Engine)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "tidalapi-standalone"
+            groupId = "com.tidal.sdk"
+            from(components["java"])
+        }
+    }
 }

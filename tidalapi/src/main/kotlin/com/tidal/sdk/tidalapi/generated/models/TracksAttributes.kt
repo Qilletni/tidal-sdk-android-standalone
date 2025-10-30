@@ -42,10 +42,10 @@ data class TracksAttributes(
     @SerialName(value = "isrc") val isrc: kotlin.String,
     /* Key */
 
-    @SerialName(value = "key") val key: TracksAttributes.Key,
+    @SerialName(value = "key") val key: TracksAttributes.Key? = null,
     /* The scale of the key */
 
-    @SerialName(value = "keyScale") val keyScale: TracksAttributes.KeyScale,
+    @SerialName(value = "keyScale") val keyScale: TracksAttributes.KeyScale? = null,
     @SerialName(value = "mediaTags") val mediaTags: kotlin.collections.List<kotlin.String>,
     /* Popularity (0.0 - 1.0) */
 

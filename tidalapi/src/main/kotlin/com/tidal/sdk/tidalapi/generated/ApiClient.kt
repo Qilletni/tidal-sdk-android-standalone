@@ -1,6 +1,7 @@
 package com.tidal.sdk.tidalapi.generated
 
-import com.tidal.sdk.auth.CredentialsProvider
+import com.tidal.sdk.tidalapi.oauth2.OAuth2TokenManager
+import okhttp3.OkHttpClient
 import com.tidal.sdk.tidalapi.generated.apis.Albums
 import com.tidal.sdk.tidalapi.generated.apis.Appreciations
 import com.tidal.sdk.tidalapi.generated.apis.ArtistBiographies
@@ -30,10 +31,10 @@ import com.tidal.sdk.tidalapi.generated.apis.Users
 import com.tidal.sdk.tidalapi.generated.apis.Videos
 import com.tidal.sdk.tidalapi.networking.RetrofitProvider
 
-class TidalApiClient(credentialsProvider: CredentialsProvider, baseUrl: String = DEFAULT_BASE_URL) {
+class TidalApiClient(tokenManager: OAuth2TokenManager, baseUrl: String = DEFAULT_BASE_URL) {
 
     private val retrofit by lazy {
-        RetrofitProvider().provideRetrofit(baseUrl, credentialsProvider)
+        RetrofitProvider().provideRetrofit(baseUrl, tokenManager)
     }
 
     /** Returns an instance of the [Albums] which can be used to make API calls to the */
@@ -173,6 +174,18 @@ class TidalApiClient(credentialsProvider: CredentialsProvider, baseUrl: String =
     /** Returns an instance of the [Videos] which can be used to make API calls to the */
     fun createVideos(): Videos {
         return retrofit.create(Videos::class.java)
+    }
+
+    /**
+     * Shuts down the OkHttpClient resources to allow the JVM to exit cleanly.
+     * Call this method when you're done using the API client.
+     */
+    fun shutdown() {
+        val okHttpClient = retrofit.callFactory() as? OkHttpClient
+        okHttpClient?.let {
+            it.dispatcher.executorService.shutdown()
+            it.connectionPool.evictAll()
+        }
     }
 
     companion object {

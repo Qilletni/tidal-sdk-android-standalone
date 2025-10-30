@@ -1,7 +1,8 @@
 package com.tidal.sdk.tidalapi.generated
 
-import com.tidal.sdk.auth.CredentialsProvider
 import com.tidal.sdk.tidalapi.networking.RetrofitProvider
+import com.tidal.sdk.tidalapi.oauth2.OAuth2TokenManager
+import okhttp3.OkHttpClient
 
 {{#apiInfo}}
     {{#apis}}
@@ -9,12 +10,12 @@ import com.tidal.sdk.tidalapi.generated.apis.{{classname}}
     {{/apis}}
 {{/apiInfo}}
 
-class TidalApiClient(credentialsProvider: CredentialsProvider, baseUrl: String = DEFAULT_BASE_URL) {
+class TidalApiClient(tokenManager: OAuth2TokenManager, baseUrl: String = DEFAULT_BASE_URL) {
 
     private val retrofit by lazy {
         RetrofitProvider().provideRetrofit(
             baseUrl,
-            credentialsProvider,
+            tokenManager,
         )
     }
 
@@ -29,6 +30,18 @@ class TidalApiClient(credentialsProvider: CredentialsProvider, baseUrl: String =
     }
     {{/apis}}
 {{/apiInfo}}
+
+    /**
+     * Shuts down the OkHttpClient resources to allow the JVM to exit cleanly.
+     * Call this method when you're done using the API client.
+     */
+    fun shutdown() {
+        val okHttpClient = retrofit.callFactory() as? OkHttpClient
+        okHttpClient?.let {
+            it.dispatcher.executorService.shutdown()
+            it.connectionPool.evictAll()
+        }
+    }
 
     companion object {
         const val DEFAULT_BASE_URL = "https://openapi.tidal.com/v2/"

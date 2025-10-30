@@ -1,9 +1,10 @@
 package com.tidal.sdk.tidalapi.networking
 
-import com.tidal.sdk.auth.CredentialsProvider
 import com.tidal.sdk.common.d
 import com.tidal.sdk.common.logger
 import com.tidal.sdk.tidalapi.generated.models.getOneOfSerializer
+import com.tidal.sdk.tidalapi.oauth2.OAuth2Interceptor
+import com.tidal.sdk.tidalapi.oauth2.OAuth2TokenManager
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import okhttp3.MediaType.Companion.toMediaType
@@ -22,17 +23,16 @@ class RetrofitProvider {
             createJsonSerializer().asConverterFactory("application/json".toMediaType()),
         )
 
-    private fun provideOkHttpClientBuilder(credentialsProvider: CredentialsProvider): OkHttpClient =
+    private fun provideOkHttpClientBuilder(tokenManager: OAuth2TokenManager): OkHttpClient =
         OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(credentialsProvider))
-            .authenticator(DefaultAuthenticator(credentialsProvider))
+            .addInterceptor(OAuth2Interceptor(tokenManager))
             .addInterceptor(getLoggingInterceptor())
             .build()
 
-    fun provideRetrofit(baseUrl: String, credentialsProvider: CredentialsProvider): Retrofit =
+    fun provideRetrofit(baseUrl: String, tokenManager: OAuth2TokenManager): Retrofit =
         Retrofit.Builder()
             .baseUrl(baseUrl)
-            .client(provideOkHttpClientBuilder(credentialsProvider))
+            .client(provideOkHttpClientBuilder(tokenManager))
             .apply { converterFactories.forEach { addConverterFactory(it) } }
             .build()
 
