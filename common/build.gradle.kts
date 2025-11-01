@@ -15,6 +15,19 @@ kotlin {
     jvmToolchain(21)
 }
 
+// Configure Java compiler to work with module-info.java and Kotlin sources
+tasks {
+    compileJava {
+        // Compile Kotlin first, then Java (module-info.java)
+        dependsOn(compileKotlin)
+        // Patch the module with Kotlin-compiled classes so Java compiler can see them
+        options.compilerArgs.addAll(listOf(
+            "--patch-module",
+            "com.tidal.sdk.common=${compileKotlin.get().destinationDirectory.asFile.get().path}"
+        ))
+    }
+}
+
 dependencies {
     api(libs.kotlin.logging)
     api(libs.slf4j.api)
