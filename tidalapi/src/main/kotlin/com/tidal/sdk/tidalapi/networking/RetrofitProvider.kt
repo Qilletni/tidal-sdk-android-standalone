@@ -27,6 +27,7 @@ class RetrofitProvider {
         OkHttpClient.Builder()
             .addInterceptor(OAuth2Interceptor(tokenManager))
             .addInterceptor(getLoggingInterceptor())
+            .addInterceptor(StrictEncodingInterceptor())
             .build()
 
     fun provideRetrofit(baseUrl: String, tokenManager: OAuth2TokenManager): Retrofit =
